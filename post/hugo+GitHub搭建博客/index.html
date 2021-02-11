@@ -236,17 +236,13 @@
 <p>后面所说的根目录就是 myblog 了。</p>
 <h2 id="3-下载并设置博客主题">3. 下载并设置博客主题</h2>
 <ol>
-<li>到 <a href="https://themes.gohugo.io/">Hugo主题下载</a> 中，选择一个喜欢的主题点击进入主题下载页：</li>
-</ol>
+<li>
+<p>到 <a href="https://themes.gohugo.io/">Hugo主题下载</a> 中，选择一个喜欢的主题点击进入主题下载页：</p>
 <ul>
-<li>
-<p>可以选择 DOWNLOAD 下载 ZIP，然后解压到 myblog\themes 目录下。</p>
-</li>
-<li>
-<p>或者在 git 命令行中切换到 myblog\themes 目录，主题页面下方会有相应主题的下载命令，进行 clone 下载。</p>
-</li>
+<li>可以选择 DOWNLOAD 下载 ZIP，然后解压到 myblog\themes 目录下。</li>
+<li>或者在 git 命令行中切换到 myblog\themes 目录，主题页面下方会有相应主题的下载命令，进行 clone 下载。</li>
 </ul>
-<ol start="2">
+</li>
 <li>
 <p>下面我演示的是 <a href="https://github.com/flysnow-org/maupassant-hugo">飞雪无情的博客主题</a> ，也是我自己使用的主题。它里面有下载安装教程和配置文档参考，比较详细。</p>
 </li>
@@ -266,7 +262,7 @@
     </p>
 </li>
 <li>
-<p>复制网址 <code>http://localhost:1313/</code>  到浏览器中进行访问，查看是否成功。</p>
+<p>输入网址 <code>http://localhost:1313/</code>  到浏览器中进行访问，查看是否成功。</p>
 </li>
 </ol>
 <h2 id="5-写一篇文章并发布">5. 写一篇文章并发布</h2>
@@ -284,11 +280,11 @@
 </ol>
 <h2 id="6-将个人博客部署到-github">6. 将个人博客部署到 GitHub</h2>
 <ol>
-<li>经过上面的操作，你只能在本地访问 <code>http://localhost:1313/</code> 来查看你的个人博客网站，别人是看不到的，要想别人能访问你的博客网站，必须将个人博客部署到远端服务器上。</li>
+<li>经过上面的操作，你只能在本地访问<code>http://localhost:1313/</code>来查看你的个人博客网站，别人是看不到的，要想别人能访问你的博客网站，必须将个人博客部署到远端服务器上。</li>
 <li>首先，你要有一个 Github 账号，然后创建一个仓库，<strong>注意</strong>：创建仓库的名必须是你 <strong>GitHub 的昵称小写再加上.github.io</strong>。例如，我的 GitHub 昵称是 endlessHair，因此创建的仓库名必须是 endlesshair.github.io。下面都基于这个仓库名示例。</li>
 <li>*然后，切换到 myblog 根目录下，输入命令 <code>hugo --baseUrl=&quot;https://endlessHair.github.io/&quot; --buildDrafts</code>，会在 myblog 根目录下生成一个 public 文件夹。</li>
 <li>切换到 public 文件夹下，输入命令 <code>git init</code>，初始化仓库。</li>
-<li>*然后输入 <code>git add .</code>，将所有内容添加到 git。</li>
+<li>*然后输入<code>git add .</code>，将所有内容添加到 git。</li>
 <li>*接着输入 <code>git commit -m &quot;第一次提交&quot;</code>，提交到 git 本地。</li>
 <li>再接着，输入<code>git remote add origin https://github.com/endlesshair/endlesshair.github.io.git</code>。关联到远程 git，注意这里需要写你自己的 git 。</li>
 <li>*最后，输入命令 <code>git push -u origin master</code>，将本地仓库代码推送到远程库。</li>
