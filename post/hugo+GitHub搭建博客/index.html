@@ -280,15 +280,33 @@
 </ol>
 <h2 id="6-将个人博客部署到-github">6. 将个人博客部署到 GitHub</h2>
 <ol>
-<li>经过上面的操作，你只能在本地访问<code>http://localhost:1313/</code>来查看你的个人博客网站，别人是看不到的，要想别人能访问你的博客网站，必须将个人博客部署到远端服务器上。</li>
-<li>首先，你要有一个 Github 账号，然后创建一个仓库，<strong>注意</strong>：创建仓库的名必须是你 <strong>GitHub 的昵称小写再加上.github.io</strong>。例如，我的 GitHub 昵称是 endlessHair，因此创建的仓库名必须是 endlesshair.github.io。下面都基于这个仓库名示例。</li>
-<li>*然后，切换到 myblog 根目录下，输入命令 <code>hugo --baseUrl=&quot;https://endlessHair.github.io/&quot; --buildDrafts</code>，会在 myblog 根目录下生成一个 public 文件夹。</li>
-<li>切换到 public 文件夹下，输入命令 <code>git init</code>，初始化仓库。</li>
-<li>*然后输入<code>git add .</code>，将所有内容添加到 git。</li>
-<li>*接着输入 <code>git commit -m &quot;第一次提交&quot;</code>，提交到 git 本地。</li>
-<li>再接着，输入<code>git remote add origin https://github.com/endlesshair/endlesshair.github.io.git</code>。关联到远程 git，注意这里需要写你自己的 git 。</li>
-<li>*最后，输入命令 <code>git push -u origin master</code>，将本地仓库代码推送到远程库。</li>
-<li>在浏览器中输入 <code>endlesshair.github.io</code>，即可访问自己的博客网站，此时别人也能访问了。</li>
+<li>
+<p>经过上面的操作，你只能在本地访问 <code>http://localhost:1313/</code> 来查看你的个人博客网站，别人是看不到的，要想别人能访问你的博客网站，必须将个人博客部署到远端服务器上。</p>
+</li>
+<li>
+<p>首先，你要有一个 Github 账号，然后创建一个仓库，<strong>注意</strong>：创建仓库的名必须是你 <strong>GitHub 的昵称小写再加上.github.io</strong>。例如，我的 GitHub 昵称是 endlessHair，因此创建的仓库名必须是 endlesshair.github.io。下面都基于这个仓库名示例。</p>
+</li>
+<li>
+<p>*然后，切换到 myblog 根目录下，输入命令 <code>hugo --baseUrl=&quot;https://endlessHair.github.io/&quot; --buildDrafts</code>，会在 myblog 根目录下生成一个 public 文件夹。</p>
+</li>
+<li>
+<p>切换到 public 文件夹下，输入命令 <code>git init</code>，初始化仓库。</p>
+</li>
+<li>
+<p>*然后输入 <code>git add .</code>，将所有内容添加到 git。</p>
+</li>
+<li>
+<p>*接着输入 <code>git commit -m &quot;第一次提交&quot;</code>，提交到 git 本地。</p>
+</li>
+<li>
+<p>再接着，输入 <code>git remote add origin https://github.com/endlesshair/endlesshair.github.io.git</code>。关联到远程 git，注意这里需要写你自己的 git 。</p>
+</li>
+<li>
+<p>*最后，输入命令 <code>git push -u origin master</code>，将本地仓库代码推送到远程库。</p>
+</li>
+<li>
+<p>在浏览器中输入 <code>endlesshair.github.io</code>，即可访问自己的博客网站，此时别人也能访问了。</p>
+</li>
 </ol>
 <h2 id="7-修改博客再发布">7. 修改博客再发布</h2>
 <p>修改博客后，步骤 6 中带星号的3、5、6、8按顺序来一遍！</p>
