@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://endlessHair.github.io/</loc>
+    <lastmod>2021-02-11T14:06:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://endlessHair.github.io/post/</loc>
+    <lastmod>2021-02-11T14:06:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://endlessHair.github.io/post/%E5%8D%9A%E5%AE%A22/</loc>
+    <lastmod>2021-02-11T14:06:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://endlessHair.github.io/post/hugo&#43;GitHub%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/</loc>
+    <lastmod>2021-01-28T21:25:10+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://endlessHair.github.io/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>https://endlessHair.github.io/tags/</loc>
+  </url>
+  
+</urlset>
