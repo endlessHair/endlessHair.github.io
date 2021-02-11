@@ -146,7 +146,7 @@
     <li><a href="#1-windows-64-位安装-hugo">1. windows 64 位安装 Hugo</a></li>
     <li><a href="#2-用-hugo-生成个人博客网站">2. 用 Hugo 生成个人博客网站</a></li>
     <li><a href="#3-下载并设置博客主题">3. 下载并设置博客主题</a></li>
-    <li><a href="#4在本地启动个人博客">4.在本地启动个人博客</a></li>
+    <li><a href="#4-在本地启动个人博客">4. 在本地启动个人博客</a></li>
     <li><a href="#5-写一篇文章并发布">5. 写一篇文章并发布</a></li>
     <li><a href="#6-将个人博客部署到-github">6. 将个人博客部署到 GitHub</a></li>
     <li><a href="#7-修改博客再发布">7. 修改博客再发布</a></li>
@@ -257,7 +257,7 @@
 <p>在maupassant 主题的 exampleSite 目录下有 config.toml 文件，把这个文件复制到 myblog 根目录下，覆盖掉根目录中的 config.toml 文件，此时 config.toml 文件中已经配置了 <code>theme = &quot;maupassant&quot;</code>，所以启动的时候可以不用规定主题了。</p>
 </li>
 </ol>
-<h2 id="4在本地启动个人博客">4.在本地启动个人博客</h2>
+<h2 id="4-在本地启动个人博客">4. 在本地启动个人博客</h2>
 <ol>
 <li>
 <p>切换到 myblog 根目录下，输入命令 <code>hugo server --buildDrafts</code>，结果如下图所示：</p>
@@ -284,15 +284,15 @@
 </ol>
 <h2 id="6-将个人博客部署到-github">6. 将个人博客部署到 GitHub</h2>
 <ol>
-<li>经过上面的操作，你只能在本地访问 <code>http://localhost:1313/</code> 来查看你的个人博客网站，别人是看不到的，要想别人能访问你的博客网站，必须将个人博客部署到远端服务器上。</li>
+<li>经过上面的操作，你只能在本地访问 <code>http://localhost:1313/</code>  来查看你的个人博客网站，别人是看不到的，要想别人能访问你的博客网站，必须将个人博客部署到远端服务器上。</li>
 <li>首先，你要有一个 Github 账号，然后创建一个仓库，<strong>注意</strong>：创建仓库的名必须是你 <strong>GitHub 的昵称小写再加上.github.io</strong>。例如，我的 GitHub 昵称是 endlessHair，因此创建的仓库名必须是 endlesshair.github.io。下面都基于这个仓库名示例。</li>
-<li>*然后，切换到 myblog 根目录下，输入命令 <code>hugo --baseUrl=&quot;https://endlessHair.github.io/&quot; --buildDrafts</code>，会在 myblog 根目录下生成一个 public 文件夹。</li>
-<li>切换到 public 文件夹下，输入命令 <code>git init</code>，初始化仓库。</li>
-<li>*然后输入 <code>git add .</code>，将所有内容添加到 git。</li>
-<li>*接着输入 <code>git commit -m &quot;第一次提交&quot;</code>，提交到 git 本地。</li>
-<li>再接着，输入 <code>git remote add origin https://github.com/endlesshair/endlesshair.github.io.git</code>。关联到远程 git，注意这里需要写你自己的 git 。</li>
-<li>*最后，输入命令 <code>git push -u origin master</code>，将本地仓库代码推送到远程库。我自己有时候会失败，失败的话在命令最后加上 -f，强制执行。</li>
-<li>在浏览器中输入 <code>endlesshair.github.io</code>，即可访问自己的博客网站，此时别人也能访问了。</li>
+<li>*然后，切换到 myblog 根目录下，输入命令  <code>hugo --baseUrl=&quot;https://endlessHair.github.io/&quot; --buildDrafts</code>，会在 myblog 根目录下生成一个 public 文件夹。</li>
+<li>切换到 public 文件夹下，输入命令  <code>git init</code>，初始化仓库。</li>
+<li>*然后输入  <code>git add .</code>，将所有内容添加到 git。</li>
+<li>*接着输入  <code>git commit -m &quot;第一次提交&quot;</code>，提交到 git 本地。</li>
+<li>再接着，输入  <code>git remote add origin https://github.com/endlesshair/endlesshair.github.io.git</code>。关联到远程 git，注意这里需要写你自己的 git 。</li>
+<li>*最后，输入命令  <code>git push -u origin master</code>，将本地仓库代码推送到远程库。</li>
+<li>在浏览器中输入  <code>endlesshair.github.io</code>，即可访问自己的博客网站，此时别人也能访问了。</li>
 </ol>
 <h2 id="7-修改博客再发布">7. 修改博客再发布</h2>
 <p>修改博客后，步骤 6 中带星号的3、5、6、8按顺序来一遍！</p>
