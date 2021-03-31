@@ -32,6 +32,8 @@
     
     
     
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
     
     
     
@@ -210,7 +212,9 @@
 <p>查看 Hugo 是否安装成功：在 E:\blog\hugo 路径下右击，选择 Git Bash Here，输入 <code>hugo version</code>，出现下图结果表示安装成功。</p>
 <p>后面使用的命令全部在 Git 命令行中输入！！！</p>
 <p>
-        <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210211134605742.png" />   
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210211134605742.png">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210211134605742.png" />
+        </a>
     </p>
 <p>如果需要在全局使用，需要配置对应的环境变量，既然看这篇文章相信大家都会啦，也可自行百度哈，有很多教程。</p>
 </li>
@@ -258,7 +262,9 @@
 <li>
 <p>切换到 myblog 根目录下，输入命令 <code>hugo server --buildDrafts</code>，结果如下图所示：</p>
 <p>
-        <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210211140924749.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />   
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210211140924749.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210211140924749.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
     </p>
 </li>
 <li>
@@ -345,7 +351,7 @@
             return;
         }
         var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
+        s.src = '//' + "ckj" + '.disqus.com/embed.js';
         s.setAttribute('data-timestamp', +new Date());
         (d.head || d.body).appendChild(s);
     })();
@@ -386,10 +392,21 @@
                 }
             };
     </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
 
 <a id="rocket" href="#top"></a>
 <script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'GA ID', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 
@@ -440,6 +457,17 @@
     </section>
 
     
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://blog.csdn.net/weixin_44292050?spm=1011.2124.3001.5343" title="ckj 的 CSDN">ckj 的 CSDN</a>
+        </li>
+        
+    </ul>
+</section>
+
 
     <section class="widget">
         <h3 class="widget-title">其它</h3>
