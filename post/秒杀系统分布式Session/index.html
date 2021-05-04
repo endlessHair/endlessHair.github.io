@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>秒杀系统分布式Session | ckj&#39;s blog</title>
+    <meta property="og:title" content="秒杀系统分布式Session - ckj&#39;s blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2021-05-02T19:12:27&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2021-05-02T19:12:27&#43;08:00'>
+        
+    <meta name="Keywords" content="飞雪无情,java,博客">
+    <meta name="description" content="秒杀系统分布式Session">
+        
+    <meta name="author" content="ckj">
+    <meta property="og:url" content="https://endlessHair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%88%86%E5%B8%83%E5%BC%8FSession/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://endlessHair.github.io/">
+                        ckj&#39;s blog
+                    </a>
+                
+                <p class="description">学无止境</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://endlessHair.github.io/">首页</a>
+                    
+                    <a  href="https://endlessHair.github.io/tools/" title="工具">工具</a>
+                    
+                    <a  href="https://endlessHair.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://endlessHair.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1为什么要用分布式session">1.为什么要用分布式Session</a></li>
+    <li><a href="#2本秒杀系统中分布式session实现">2.本秒杀系统中分布式Session实现</a></li>
+    <li><a href="#3分布式session优化">3.分布式Session优化</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">秒杀系统分布式Session</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年5月2日
+        </date>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <h2 id="1为什么要用分布式session">1.为什么要用分布式Session</h2>
+<p>通常一个大型项目不太可能部署在一个服务器上，一般都是部署在不同的服务器上，来进行分散压力。假如此时没有使用分布式Session，那么我们设想一种情景：</p>
+<p>一个用户在 A 服务器登录，做登录处理的是 A 服务器，没毛病，那么当他下次请求时，处理的是 B 服务器，那么这个用户到底是谁， B服务器压根就不知道，也就是说前面登录后存储在 A 服务器中的用户信息，B 是拿不到的。</p>
+<p>分布式 Session 就是解决这个问题的，使用 Session 同步，无论你的请求到达的是哪一台服务器，都能知道是哪个用户。</p>
+<p>但是如果仅仅是一个服务器的 Session 全部同步到另一台服务器上，虽然可以共享 Session 了，但是缺点也很明显，各个服务器之间同步需要多久呢？另外每一个服务器都有相同的 Session，有必要吗？</p>
+<h2 id="2本秒杀系统中分布式session实现">2.本秒杀系统中分布式Session实现</h2>
+<ol>
+<li>
+<p>实现思路</p>
+<p>用户登陆成功后，服务器利用 UUID 生成一个随机串 token，然后使用（UserKey 前缀 + token）作为 key，该用户对象 user 作为 value，存储到 redis 缓存中，同时把随机串 token 以 cookie 的形式返回给客户端。</p>
+<p>客户端在后续访问中，都将携带这个 token 到服务器，进行（UserKey 前缀 + token）拼接，然后以这个作为 key，到 redis 缓存中获取到对应的 value（session），也就是 user。</p>
+</li>
+<li>
+<p>图解思路</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210504195359789.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210504195359789.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+</li>
+<li>
+<p>核心代码</p>
+<p>在登录的时候，需要调用 addCookie 这个方法，方法中，先将用户信息放入了 redis 缓存，然后返回给前端 cookie，也就是 token 了。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#000;font-weight:bold">private</span> <span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">addCookie</span><span style="color:#000;font-weight:bold">(</span>HttpServletResponse response<span style="color:#000;font-weight:bold">,</span> String token<span style="color:#000;font-weight:bold">,</span> SeckillUser user<span style="color:#000;font-weight:bold">){</span>
+        redisService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">set</span><span style="color:#000;font-weight:bold">(</span>SeckillUserKey<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">token</span><span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">,</span> user<span style="color:#000;font-weight:bold">);</span>
+   
+        Cookie cookie <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> Cookie<span style="color:#000;font-weight:bold">(</span>COOKIE_NAME_TOKEN<span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">);</span>
+        cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">setMaxAge</span><span style="color:#000;font-weight:bold">(</span>SeckillUserKey<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">token</span><span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getExpireSeconds</span><span style="color:#000;font-weight:bold">());</span>
+        cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">setPath</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;/&#34;</span><span style="color:#000;font-weight:bold">);</span>
+        response<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">addCookie</span><span style="color:#000;font-weight:bold">(</span>cookie<span style="color:#000;font-weight:bold">);</span>
+    <span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>一般来说，redis 中缓存是有过期时间的，假如设置了过期时间是 1 h，那么这个 1 h 是你最后一次查缓存的时间到目前为止来计算的，所以每次根据 token 到 redis 中查找用户的时候，如果找到了用户，那么就需要重新设置过期时间为 1 h，下面的方法中就需要延长有效期。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#000;font-weight:bold">public</span> SeckillUser <span style="color:#900;font-weight:bold">selectByToken</span><span style="color:#000;font-weight:bold">(</span>String token<span style="color:#000;font-weight:bold">,</span> HttpServletResponse response<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+        <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>token<span style="color:#000;font-weight:bold">)){</span>
+            <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">;</span>
+        <span style="color:#000;font-weight:bold">}</span>
+        SeckillUser user <span style="color:#000;font-weight:bold">=</span> redisService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">get</span><span style="color:#000;font-weight:bold">(</span>SeckillUserKey<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">token</span><span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">,</span> SeckillUser<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">);</span>
+        <span style="color:#998;font-style:italic">// 先延长一下有效期
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>user <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">){</span>
+            addCookie<span style="color:#000;font-weight:bold">(</span>response<span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">,</span> user<span style="color:#000;font-weight:bold">);</span>
+        <span style="color:#000;font-weight:bold">}</span>
+        <span style="color:#000;font-weight:bold">return</span> user<span style="color:#000;font-weight:bold">;</span>
+    <span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h2 id="3分布式session优化">3.分布式Session优化</h2>
+<p>我们先看 商品列表 这个接口：</p>
+<p>其中，参数上的注解是可以根据参数从 cookie 中拿到 token 值的，第二个参数是移动端的问题，暂且不讨论。可以发现，你每次写新的方法，都需要加上这个参数来拿到 token，并且方法中还需要进行判断，代码量比较冗余。</p>
+<p><!-- raw HTML omitted --></p>
+<p>那么可不可以把他剥离出来呢？</p>
+<p>我们实现 WebMvcConfigurer 接口，重写 addArgumentResolvers 方法，controller 中那些方法的参数值就这个方法赋予的。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Configuration</span>
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">WebConfig</span> <span style="color:#000;font-weight:bold">implements</span> WebMvcConfigurer <span style="color:#000;font-weight:bold">{</span>
+    <span style="color:#3c5d5d;font-weight:bold">@Autowired</span>
+    <span style="color:#000;font-weight:bold">private</span> UserArgumentResolver userArgumentResolver<span style="color:#000;font-weight:bold">;</span>
+
+    <span style="color:#3c5d5d;font-weight:bold">@Override</span>
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">addArgumentResolvers</span><span style="color:#000;font-weight:bold">(</span>List<span style="color:#000;font-weight:bold">&lt;</span>HandlerMethodArgumentResolver<span style="color:#000;font-weight:bold">&gt;</span> resolvers<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+        resolvers<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">add</span><span style="color:#000;font-weight:bold">(</span>userArgumentResolver<span style="color:#000;font-weight:bold">);</span>
+    <span style="color:#000;font-weight:bold">}</span>
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后创建 UserArgumentResolver 类实现 HandlerMethodArgumentResolver 接口，并将这个类注入到 WebConfig 中。</p>
+<p>实现这个接口必须要实现 下面两个方法，其中 supportsParameter 这个方法，是用来判断需不需要执行第二个的 resolveArgument 方法。resolveArgument 方法就是返回我们需要的 用户 了，因为优化前方法参数列表中有两个参数注解，所以在这里我们需要做一个判断，根据其中任意一个 token 拿到 redis 中的 user。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Service</span>
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">UserArgumentResolver</span> <span style="color:#000;font-weight:bold">implements</span> HandlerMethodArgumentResolver <span style="color:#000;font-weight:bold">{</span>
+    <span style="color:#3c5d5d;font-weight:bold">@Autowired</span>
+    <span style="color:#000;font-weight:bold">private</span> SeckillUserService seckillUserService<span style="color:#000;font-weight:bold">;</span>
+    
+    <span style="color:#3c5d5d;font-weight:bold">@Override</span>
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#458;font-weight:bold">boolean</span> <span style="color:#900;font-weight:bold">supportsParameter</span><span style="color:#000;font-weight:bold">(</span>MethodParameter methodParameter<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+        Class<span style="color:#000;font-weight:bold">&lt;?&gt;</span> clazz <span style="color:#000;font-weight:bold">=</span> methodParameter<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getParameterType</span><span style="color:#000;font-weight:bold">();</span>
+        <span style="color:#000;font-weight:bold">return</span> clazz <span style="color:#000;font-weight:bold">==</span> SeckillUser<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">;</span>
+    <span style="color:#000;font-weight:bold">}</span>
+
+    <span style="color:#3c5d5d;font-weight:bold">@Override</span>
+    <span style="color:#000;font-weight:bold">public</span> Object <span style="color:#900;font-weight:bold">resolveArgument</span><span style="color:#000;font-weight:bold">(</span>MethodParameter methodParameter<span style="color:#000;font-weight:bold">,</span> ModelAndViewContainer modelAndViewContainer<span style="color:#000;font-weight:bold">,</span>
+                                  NativeWebRequest nativeWebRequest<span style="color:#000;font-weight:bold">,</span> WebDataBinderFactory webDataBinderFactory<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">throws</span> Exception <span style="color:#000;font-weight:bold">{</span>
+        HttpServletRequest request <span style="color:#000;font-weight:bold">=</span> nativeWebRequest<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getNativeRequest</span><span style="color:#000;font-weight:bold">(</span>HttpServletRequest<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">);</span>
+        HttpServletResponse response <span style="color:#000;font-weight:bold">=</span> nativeWebRequest<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getNativeResponse</span><span style="color:#000;font-weight:bold">(</span>HttpServletResponse<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">);</span>
+
+        String paramToken <span style="color:#000;font-weight:bold">=</span> request<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getParameter</span><span style="color:#000;font-weight:bold">(</span>SeckillUserService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">COOKIE_NAME_TOKEN</span><span style="color:#000;font-weight:bold">);</span>
+        String cookieToken <span style="color:#000;font-weight:bold">=</span> getCookieValue<span style="color:#000;font-weight:bold">(</span>request<span style="color:#000;font-weight:bold">,</span> SeckillUserService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">COOKIE_NAME_TOKEN</span><span style="color:#000;font-weight:bold">);</span>
+        <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>cookieToken<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>paramToken<span style="color:#000;font-weight:bold">)){</span>
+            <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">;</span>
+        <span style="color:#000;font-weight:bold">}</span>
+        String token <span style="color:#000;font-weight:bold">=</span> StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>paramToken<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">?</span> cookieToken <span style="color:#000;font-weight:bold">:</span> paramToken<span style="color:#000;font-weight:bold">;</span>
+        <span style="color:#000;font-weight:bold">return</span> seckillUserService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">selectByToken</span><span style="color:#000;font-weight:bold">(</span>token<span style="color:#000;font-weight:bold">,</span> response<span style="color:#000;font-weight:bold">);</span>
+    <span style="color:#000;font-weight:bold">}</span>
+
+    <span style="color:#000;font-weight:bold">private</span> String <span style="color:#900;font-weight:bold">getCookieValue</span><span style="color:#000;font-weight:bold">(</span>HttpServletRequest request<span style="color:#000;font-weight:bold">,</span> String cookieName<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+        Cookie<span style="color:#000;font-weight:bold">[]</span> cookies <span style="color:#000;font-weight:bold">=</span> request<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getCookies</span><span style="color:#000;font-weight:bold">();</span>
+        <span style="color:#000;font-weight:bold">for</span><span style="color:#000;font-weight:bold">(</span>Cookie cookie <span style="color:#000;font-weight:bold">:</span> cookies<span style="color:#000;font-weight:bold">){</span>
+            <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getName</span><span style="color:#000;font-weight:bold">().</span><span style="color:#008080">equals</span><span style="color:#000;font-weight:bold">(</span>cookieName<span style="color:#000;font-weight:bold">)){</span>
+                <span style="color:#000;font-weight:bold">return</span> cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getValue</span><span style="color:#000;font-weight:bold">();</span>
+            <span style="color:#000;font-weight:bold">}</span>
+        <span style="color:#000;font-weight:bold">}</span>
+        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">;</span>
+    <span style="color:#000;font-weight:bold">}</span>
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这时，商品列表接口就可以简化成这样了：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#998;font-style:italic">// 跳转到 商品列表 页面
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#3c5d5d;font-weight:bold">@RequestMapping</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;to_list&#34;</span><span style="color:#000;font-weight:bold">)</span>
+    <span style="color:#000;font-weight:bold">public</span> String <span style="color:#900;font-weight:bold">toList</span><span style="color:#000;font-weight:bold">(</span>Model model<span style="color:#000;font-weight:bold">,</span> SeckillUser user<span style="color:#000;font-weight:bold">){</span>
+        model<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">addAttribute</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;user&#34;</span><span style="color:#000;font-weight:bold">,</span> user<span style="color:#000;font-weight:bold">);</span>
+        <span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;goods_list&#34;</span><span style="color:#000;font-weight:bold">;</span>
+    <span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/hugo&#43;GitHub%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">Hugo&#43;GitHub搭建个人博客</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            没有标签
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "ckj" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://endlessHair.github.io/">ckj&#39;s blog By ckj</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'GA ID', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://endlessHair.github.io/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://endlessHair.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://endlessHair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%88%86%E5%B8%83%E5%BC%8FSession/" title="秒杀系统分布式Session">秒杀系统分布式Session</a>
+    </li>
+    
+    <li>
+        <a href="https://endlessHair.github.io/post/hugo&#43;GitHub%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/" title="Hugo&#43;GitHub搭建个人博客">Hugo&#43;GitHub搭建个人博客</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://blog.csdn.net/weixin_44292050?spm=1011.2124.3001.5343" title="ckj 的 CSDN">ckj 的 CSDN</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://endlessHair.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
