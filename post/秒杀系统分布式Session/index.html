@@ -9,8 +9,8 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
     
 
-    <title>秒杀系统分布式Session | ckj&#39;s blog</title>
-    <meta property="og:title" content="秒杀系统分布式Session - ckj&#39;s blog">
+    <title>秒杀系统——分布式Session | ckj&#39;s blog</title>
+    <meta property="og:title" content="秒杀系统——分布式Session - ckj&#39;s blog">
     <meta property="og:type" content="article">
         
     <meta property="article:published_time" content='2021-05-02T19:12:27&#43;08:00'>
@@ -18,8 +18,8 @@
         
     <meta property="article:modified_time" content='2021-05-02T19:12:27&#43;08:00'>
         
-    <meta name="Keywords" content="飞雪无情,java,博客">
-    <meta name="description" content="秒杀系统分布式Session">
+    <meta name="Keywords" content="ckj,java,博客">
+    <meta name="description" content="秒杀系统——分布式Session">
         
     <meta name="author" content="ckj">
     <meta property="og:url" content="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%88%86%E5%B8%83%E5%BC%8FSession/">
@@ -54,7 +54,7 @@
                         ckj&#39;s blog
                     </a>
                 
-                <p class="description">学无止境</p>
+                <p class="description">优秀不是目的，更优秀才是。</p>
             </div>
             <div>
                 <nav id="nav-menu" class="clearfix">
@@ -181,7 +181,7 @@
 </script>
     <article class="post">
         <header>
-            <h1 class="post-title">秒杀系统分布式Session</h1>
+            <h1 class="post-title">秒杀系统——分布式Session</h1>
         </header>
         <date class="post-meta meta-date">
             2021年5月2日
@@ -218,9 +218,9 @@
 <li>
 <p>核心代码</p>
 <p>在登录的时候，需要调用 addCookie 这个方法，方法中，先将用户信息放入了 redis 缓存，然后返回给前端 cookie，也就是 token 了。</p>
-<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
@@ -230,20 +230,20 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#000;font-weight:bold">private</span> <span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">addCookie</span><span style="color:#000;font-weight:bold">(</span>HttpServletResponse response<span style="color:#000;font-weight:bold">,</span> String token<span style="color:#000;font-weight:bold">,</span> SeckillUser user<span style="color:#000;font-weight:bold">){</span>
-        redisService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">set</span><span style="color:#000;font-weight:bold">(</span>SeckillUserKey<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">token</span><span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">,</span> user<span style="color:#000;font-weight:bold">);</span>
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">addCookie</span><span style="color:#ff79c6">(</span>HttpServletResponse response<span style="color:#ff79c6">,</span> String token<span style="color:#ff79c6">,</span> SeckillUser user<span style="color:#ff79c6">){</span>
+        redisService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">set</span><span style="color:#ff79c6">(</span>SeckillUserKey<span style="color:#ff79c6">.</span><span style="color:#50fa7b">token</span><span style="color:#ff79c6">,</span> token<span style="color:#ff79c6">,</span> user<span style="color:#ff79c6">);</span>
    
-        Cookie cookie <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> Cookie<span style="color:#000;font-weight:bold">(</span>COOKIE_NAME_TOKEN<span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">);</span>
-        cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">setMaxAge</span><span style="color:#000;font-weight:bold">(</span>SeckillUserKey<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">token</span><span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getExpireSeconds</span><span style="color:#000;font-weight:bold">());</span>
-        cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">setPath</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;/&#34;</span><span style="color:#000;font-weight:bold">);</span>
-        response<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">addCookie</span><span style="color:#000;font-weight:bold">(</span>cookie<span style="color:#000;font-weight:bold">);</span>
-    <span style="color:#000;font-weight:bold">}</span>
+        Cookie cookie <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Cookie<span style="color:#ff79c6">(</span>COOKIE_NAME_TOKEN<span style="color:#ff79c6">,</span> token<span style="color:#ff79c6">);</span>
+        cookie<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setMaxAge</span><span style="color:#ff79c6">(</span>SeckillUserKey<span style="color:#ff79c6">.</span><span style="color:#50fa7b">token</span><span style="color:#ff79c6">.</span><span style="color:#50fa7b">getExpireSeconds</span><span style="color:#ff79c6">());</span>
+        cookie<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setPath</span><span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;/&#34;</span><span style="color:#ff79c6">);</span>
+        response<span style="color:#ff79c6">.</span><span style="color:#50fa7b">addCookie</span><span style="color:#ff79c6">(</span>cookie<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
 </code></pre></td></tr></table>
 </div>
 </div><p>一般来说，redis 中缓存是有过期时间的，假如设置了过期时间是 1 h，那么这个 1 h 是你最后一次查缓存的时间到目前为止来计算的，所以每次根据 token 到 redis 中查找用户的时候，如果找到了用户，那么就需要重新设置过期时间为 1 h，下面的方法中就需要延长有效期。</p>
-<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
@@ -256,17 +256,17 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#000;font-weight:bold">public</span> SeckillUser <span style="color:#900;font-weight:bold">selectByToken</span><span style="color:#000;font-weight:bold">(</span>String token<span style="color:#000;font-weight:bold">,</span> HttpServletResponse response<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
-        <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>token<span style="color:#000;font-weight:bold">)){</span>
-            <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">;</span>
-        <span style="color:#000;font-weight:bold">}</span>
-        SeckillUser user <span style="color:#000;font-weight:bold">=</span> redisService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">get</span><span style="color:#000;font-weight:bold">(</span>SeckillUserKey<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">token</span><span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">,</span> SeckillUser<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">);</span>
-        <span style="color:#998;font-style:italic">// 先延长一下有效期
-</span><span style="color:#998;font-style:italic"></span>        <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>user <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">){</span>
-            addCookie<span style="color:#000;font-weight:bold">(</span>response<span style="color:#000;font-weight:bold">,</span> token<span style="color:#000;font-weight:bold">,</span> user<span style="color:#000;font-weight:bold">);</span>
-        <span style="color:#000;font-weight:bold">}</span>
-        <span style="color:#000;font-weight:bold">return</span> user<span style="color:#000;font-weight:bold">;</span>
-    <span style="color:#000;font-weight:bold">}</span>
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#8be9fd;font-style:italic">public</span> SeckillUser <span style="color:#50fa7b">selectByToken</span><span style="color:#ff79c6">(</span>String token<span style="color:#ff79c6">,</span> HttpServletResponse response<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>StringUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isEmpty</span><span style="color:#ff79c6">(</span>token<span style="color:#ff79c6">)){</span>
+            <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">}</span>
+        SeckillUser user <span style="color:#ff79c6">=</span> redisService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">get</span><span style="color:#ff79c6">(</span>SeckillUserKey<span style="color:#ff79c6">.</span><span style="color:#50fa7b">token</span><span style="color:#ff79c6">,</span> token<span style="color:#ff79c6">,</span> SeckillUser<span style="color:#ff79c6">.</span><span style="color:#50fa7b">class</span><span style="color:#ff79c6">);</span>
+        <span style="color:#6272a4">// 先延长一下有效期
+</span><span style="color:#6272a4"></span>        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>user <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">){</span>
+            addCookie<span style="color:#ff79c6">(</span>response<span style="color:#ff79c6">,</span> token<span style="color:#ff79c6">,</span> user<span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">return</span> user<span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
 </code></pre></td></tr></table>
 </div>
 </div></li>
@@ -277,9 +277,9 @@
 <p><!-- raw HTML omitted --></p>
 <p>那么可不可以把他剥离出来呢？</p>
 <p>我们实现 WebMvcConfigurer 接口，重写 addArgumentResolvers 方法，controller 中那些方法的参数值就这个方法赋予的。</p>
-<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
@@ -291,23 +291,23 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Configuration</span>
-<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">WebConfig</span> <span style="color:#000;font-weight:bold">implements</span> WebMvcConfigurer <span style="color:#000;font-weight:bold">{</span>
-    <span style="color:#3c5d5d;font-weight:bold">@Autowired</span>
-    <span style="color:#000;font-weight:bold">private</span> UserArgumentResolver userArgumentResolver<span style="color:#000;font-weight:bold">;</span>
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">@Configuration
+<span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">WebConfig</span> <span style="color:#8be9fd;font-style:italic">implements</span> WebMvcConfigurer <span style="color:#ff79c6">{</span>
+    @Autowired
+    <span style="color:#8be9fd;font-style:italic">private</span> UserArgumentResolver userArgumentResolver<span style="color:#ff79c6">;</span>
 
-    <span style="color:#3c5d5d;font-weight:bold">@Override</span>
-    <span style="color:#000;font-weight:bold">public</span> <span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">addArgumentResolvers</span><span style="color:#000;font-weight:bold">(</span>List<span style="color:#000;font-weight:bold">&lt;</span>HandlerMethodArgumentResolver<span style="color:#000;font-weight:bold">&gt;</span> resolvers<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
-        resolvers<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">add</span><span style="color:#000;font-weight:bold">(</span>userArgumentResolver<span style="color:#000;font-weight:bold">);</span>
-    <span style="color:#000;font-weight:bold">}</span>
-<span style="color:#000;font-weight:bold">}</span>
+    @Override
+    <span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">addArgumentResolvers</span><span style="color:#ff79c6">(</span>List<span style="color:#ff79c6">&lt;</span>HandlerMethodArgumentResolver<span style="color:#ff79c6">&gt;</span> resolvers<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        resolvers<span style="color:#ff79c6">.</span><span style="color:#50fa7b">add</span><span style="color:#ff79c6">(</span>userArgumentResolver<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
 </code></pre></td></tr></table>
 </div>
 </div><p>然后创建 UserArgumentResolver 类实现 HandlerMethodArgumentResolver 接口，并将这个类注入到 WebConfig 中。</p>
 <p>实现这个接口必须要实现 下面两个方法，其中 supportsParameter 这个方法，是用来判断需不需要执行第二个的 resolveArgument 方法。resolveArgument 方法就是返回我们需要的 用户 了，因为优化前方法参数列表中有两个参数注解，所以在这里我们需要做一个判断，根据其中任意一个 token 拿到 redis 中的 user。</p>
-<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
@@ -345,48 +345,48 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Service</span>
-<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">UserArgumentResolver</span> <span style="color:#000;font-weight:bold">implements</span> HandlerMethodArgumentResolver <span style="color:#000;font-weight:bold">{</span>
-    <span style="color:#3c5d5d;font-weight:bold">@Autowired</span>
-    <span style="color:#000;font-weight:bold">private</span> SeckillUserService seckillUserService<span style="color:#000;font-weight:bold">;</span>
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">@Service
+<span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">UserArgumentResolver</span> <span style="color:#8be9fd;font-style:italic">implements</span> HandlerMethodArgumentResolver <span style="color:#ff79c6">{</span>
+    @Autowired
+    <span style="color:#8be9fd;font-style:italic">private</span> SeckillUserService seckillUserService<span style="color:#ff79c6">;</span>
     
-    <span style="color:#3c5d5d;font-weight:bold">@Override</span>
-    <span style="color:#000;font-weight:bold">public</span> <span style="color:#458;font-weight:bold">boolean</span> <span style="color:#900;font-weight:bold">supportsParameter</span><span style="color:#000;font-weight:bold">(</span>MethodParameter methodParameter<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
-        Class<span style="color:#000;font-weight:bold">&lt;?&gt;</span> clazz <span style="color:#000;font-weight:bold">=</span> methodParameter<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getParameterType</span><span style="color:#000;font-weight:bold">();</span>
-        <span style="color:#000;font-weight:bold">return</span> clazz <span style="color:#000;font-weight:bold">==</span> SeckillUser<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">;</span>
-    <span style="color:#000;font-weight:bold">}</span>
+    @Override
+    <span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd">boolean</span> <span style="color:#50fa7b">supportsParameter</span><span style="color:#ff79c6">(</span>MethodParameter methodParameter<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        Class<span style="color:#ff79c6">&lt;?&gt;</span> clazz <span style="color:#ff79c6">=</span> methodParameter<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getParameterType</span><span style="color:#ff79c6">();</span>
+        <span style="color:#ff79c6">return</span> clazz <span style="color:#ff79c6">==</span> SeckillUser<span style="color:#ff79c6">.</span><span style="color:#50fa7b">class</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
 
-    <span style="color:#3c5d5d;font-weight:bold">@Override</span>
-    <span style="color:#000;font-weight:bold">public</span> Object <span style="color:#900;font-weight:bold">resolveArgument</span><span style="color:#000;font-weight:bold">(</span>MethodParameter methodParameter<span style="color:#000;font-weight:bold">,</span> ModelAndViewContainer modelAndViewContainer<span style="color:#000;font-weight:bold">,</span>
-                                  NativeWebRequest nativeWebRequest<span style="color:#000;font-weight:bold">,</span> WebDataBinderFactory webDataBinderFactory<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">throws</span> Exception <span style="color:#000;font-weight:bold">{</span>
-        HttpServletRequest request <span style="color:#000;font-weight:bold">=</span> nativeWebRequest<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getNativeRequest</span><span style="color:#000;font-weight:bold">(</span>HttpServletRequest<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">);</span>
-        HttpServletResponse response <span style="color:#000;font-weight:bold">=</span> nativeWebRequest<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getNativeResponse</span><span style="color:#000;font-weight:bold">(</span>HttpServletResponse<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">class</span><span style="color:#000;font-weight:bold">);</span>
+    @Override
+    <span style="color:#8be9fd;font-style:italic">public</span> Object <span style="color:#50fa7b">resolveArgument</span><span style="color:#ff79c6">(</span>MethodParameter methodParameter<span style="color:#ff79c6">,</span> ModelAndViewContainer modelAndViewContainer<span style="color:#ff79c6">,</span>
+                                  NativeWebRequest nativeWebRequest<span style="color:#ff79c6">,</span> WebDataBinderFactory webDataBinderFactory<span style="color:#ff79c6">)</span> <span style="color:#8be9fd;font-style:italic">throws</span> Exception <span style="color:#ff79c6">{</span>
+        HttpServletRequest request <span style="color:#ff79c6">=</span> nativeWebRequest<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getNativeRequest</span><span style="color:#ff79c6">(</span>HttpServletRequest<span style="color:#ff79c6">.</span><span style="color:#50fa7b">class</span><span style="color:#ff79c6">);</span>
+        HttpServletResponse response <span style="color:#ff79c6">=</span> nativeWebRequest<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getNativeResponse</span><span style="color:#ff79c6">(</span>HttpServletResponse<span style="color:#ff79c6">.</span><span style="color:#50fa7b">class</span><span style="color:#ff79c6">);</span>
 
-        String paramToken <span style="color:#000;font-weight:bold">=</span> request<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getParameter</span><span style="color:#000;font-weight:bold">(</span>SeckillUserService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">COOKIE_NAME_TOKEN</span><span style="color:#000;font-weight:bold">);</span>
-        String cookieToken <span style="color:#000;font-weight:bold">=</span> getCookieValue<span style="color:#000;font-weight:bold">(</span>request<span style="color:#000;font-weight:bold">,</span> SeckillUserService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">COOKIE_NAME_TOKEN</span><span style="color:#000;font-weight:bold">);</span>
-        <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>cookieToken<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>paramToken<span style="color:#000;font-weight:bold">)){</span>
-            <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">;</span>
-        <span style="color:#000;font-weight:bold">}</span>
-        String token <span style="color:#000;font-weight:bold">=</span> StringUtils<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">isEmpty</span><span style="color:#000;font-weight:bold">(</span>paramToken<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">?</span> cookieToken <span style="color:#000;font-weight:bold">:</span> paramToken<span style="color:#000;font-weight:bold">;</span>
-        <span style="color:#000;font-weight:bold">return</span> seckillUserService<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">selectByToken</span><span style="color:#000;font-weight:bold">(</span>token<span style="color:#000;font-weight:bold">,</span> response<span style="color:#000;font-weight:bold">);</span>
-    <span style="color:#000;font-weight:bold">}</span>
+        String paramToken <span style="color:#ff79c6">=</span> request<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getParameter</span><span style="color:#ff79c6">(</span>SeckillUserService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">COOKIE_NAME_TOKEN</span><span style="color:#ff79c6">);</span>
+        String cookieToken <span style="color:#ff79c6">=</span> getCookieValue<span style="color:#ff79c6">(</span>request<span style="color:#ff79c6">,</span> SeckillUserService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">COOKIE_NAME_TOKEN</span><span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>StringUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isEmpty</span><span style="color:#ff79c6">(</span>cookieToken<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">&amp;&amp;</span> StringUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isEmpty</span><span style="color:#ff79c6">(</span>paramToken<span style="color:#ff79c6">)){</span>
+            <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">}</span>
+        String token <span style="color:#ff79c6">=</span> StringUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isEmpty</span><span style="color:#ff79c6">(</span>paramToken<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">?</span> cookieToken <span style="color:#ff79c6">:</span> paramToken<span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">return</span> seckillUserService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">selectByToken</span><span style="color:#ff79c6">(</span>token<span style="color:#ff79c6">,</span> response<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
 
-    <span style="color:#000;font-weight:bold">private</span> String <span style="color:#900;font-weight:bold">getCookieValue</span><span style="color:#000;font-weight:bold">(</span>HttpServletRequest request<span style="color:#000;font-weight:bold">,</span> String cookieName<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
-        Cookie<span style="color:#000;font-weight:bold">[]</span> cookies <span style="color:#000;font-weight:bold">=</span> request<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getCookies</span><span style="color:#000;font-weight:bold">();</span>
-        <span style="color:#000;font-weight:bold">for</span><span style="color:#000;font-weight:bold">(</span>Cookie cookie <span style="color:#000;font-weight:bold">:</span> cookies<span style="color:#000;font-weight:bold">){</span>
-            <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">(</span>cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getName</span><span style="color:#000;font-weight:bold">().</span><span style="color:#008080">equals</span><span style="color:#000;font-weight:bold">(</span>cookieName<span style="color:#000;font-weight:bold">)){</span>
-                <span style="color:#000;font-weight:bold">return</span> cookie<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">getValue</span><span style="color:#000;font-weight:bold">();</span>
-            <span style="color:#000;font-weight:bold">}</span>
-        <span style="color:#000;font-weight:bold">}</span>
-        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">null</span><span style="color:#000;font-weight:bold">;</span>
-    <span style="color:#000;font-weight:bold">}</span>
-<span style="color:#000;font-weight:bold">}</span>
+    <span style="color:#8be9fd;font-style:italic">private</span> String <span style="color:#50fa7b">getCookieValue</span><span style="color:#ff79c6">(</span>HttpServletRequest request<span style="color:#ff79c6">,</span> String cookieName<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        Cookie<span style="color:#ff79c6">[]</span> cookies <span style="color:#ff79c6">=</span> request<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getCookies</span><span style="color:#ff79c6">();</span>
+        <span style="color:#ff79c6">for</span><span style="color:#ff79c6">(</span>Cookie cookie <span style="color:#ff79c6">:</span> cookies<span style="color:#ff79c6">){</span>
+            <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>cookie<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getName</span><span style="color:#ff79c6">().</span><span style="color:#50fa7b">equals</span><span style="color:#ff79c6">(</span>cookieName<span style="color:#ff79c6">)){</span>
+                <span style="color:#ff79c6">return</span> cookie<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getValue</span><span style="color:#ff79c6">();</span>
+            <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
 </code></pre></td></tr></table>
 </div>
 </div><p>这时，商品列表接口就可以简化成这样了：</p>
-<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
@@ -394,12 +394,12 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#998;font-style:italic">// 跳转到 商品列表 页面
-</span><span style="color:#998;font-style:italic"></span>    <span style="color:#3c5d5d;font-weight:bold">@RequestMapping</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;to_list&#34;</span><span style="color:#000;font-weight:bold">)</span>
-    <span style="color:#000;font-weight:bold">public</span> String <span style="color:#900;font-weight:bold">toList</span><span style="color:#000;font-weight:bold">(</span>Model model<span style="color:#000;font-weight:bold">,</span> SeckillUser user<span style="color:#000;font-weight:bold">){</span>
-        model<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">addAttribute</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;user&#34;</span><span style="color:#000;font-weight:bold">,</span> user<span style="color:#000;font-weight:bold">);</span>
-        <span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;goods_list&#34;</span><span style="color:#000;font-weight:bold">;</span>
-    <span style="color:#000;font-weight:bold">}</span>
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#6272a4">// 跳转到 商品列表 页面
+</span><span style="color:#6272a4"></span>    @RequestMapping<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;to_list&#34;</span><span style="color:#ff79c6">)</span>
+    <span style="color:#8be9fd;font-style:italic">public</span> String <span style="color:#50fa7b">toList</span><span style="color:#ff79c6">(</span>Model model<span style="color:#ff79c6">,</span> SeckillUser user<span style="color:#ff79c6">){</span>
+        model<span style="color:#ff79c6">.</span><span style="color:#50fa7b">addAttribute</span><span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;user&#34;</span><span style="color:#ff79c6">,</span> user<span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;goods_list&#34;</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
 </code></pre></td></tr></table>
 </div>
 </div>
@@ -523,7 +523,11 @@ if (!doNotTrack) {
 <ul class="widget-list">
     
     <li>
-        <a href="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%88%86%E5%B8%83%E5%BC%8FSession/" title="秒杀系统分布式Session">秒杀系统分布式Session</a>
+        <a href="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E9%A1%B5%E9%9D%A2%E4%BC%98%E5%8C%96/" title="秒杀系统——页面优化">秒杀系统——页面优化</a>
+    </li>
+    
+    <li>
+        <a href="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%88%86%E5%B8%83%E5%BC%8FSession/" title="秒杀系统——分布式Session">秒杀系统——分布式Session</a>
     </li>
     
     <li>
@@ -555,7 +559,7 @@ if (!doNotTrack) {
     <ul class="widget-list">
         
         <li>
-            <a target="_blank" href="https://blog.csdn.net/weixin_44292050?spm=1011.2124.3001.5343" title="ckj 的 CSDN">ckj 的 CSDN</a>
+            <a target="_blank" href="https://blog.csdn.net/weixin_44292050?spm=1011.2124.3001.5343" title="我的 CSDN">我的 CSDN</a>
         </li>
         
     </ul>
