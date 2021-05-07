@@ -1,0 +1,1117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>秒杀系统——安全性能优化 | ckj&#39;s blog</title>
+    <meta property="og:title" content="秒杀系统——安全性能优化 - ckj&#39;s blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2021-05-07T09:12:53&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2021-05-07T09:12:53&#43;08:00'>
+        
+    <meta name="Keywords" content="ckj,java,博客">
+    <meta name="description" content="秒杀系统——安全性能优化">
+        
+    <meta name="author" content="ckj">
+    <meta property="og:url" content="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://endlesshair.github.io/">
+                        ckj&#39;s blog
+                    </a>
+                
+                <p class="description">优秀不是目的，更优秀才是。</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://endlesshair.github.io/">首页</a>
+                    
+                    <a  href="https://endlesshair.github.io/tools/" title="工具">工具</a>
+                    
+                    <a  href="https://endlesshair.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://endlesshair.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1双重-md5-密码校验">1.双重 MD5 密码校验</a></li>
+    <li><a href="#2秒杀接口地址隐藏">2.秒杀接口地址隐藏</a></li>
+    <li><a href="#3数学公式验证码">3.数学公式验证码</a></li>
+    <li><a href="#4接口限流防刷">4.接口限流防刷</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">秒杀系统——安全性能优化</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年5月7日
+        </date>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p>本篇主要概述秒杀系统中安全优化的点：</p>
+<ul>
+<li>双重 MD5 密码校验</li>
+<li>秒杀接口地址隐藏</li>
+<li>数学公式验证码</li>
+<li>接口限流防刷</li>
+</ul>
+<h2 id="1双重-md5-密码校验">1.双重 MD5 密码校验</h2>
+<ol>
+<li>
+<p>先创建数据库，注意看密码字段的注释。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507091901514.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507091901514.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+</li>
+<li>
+<p>两次 MD5 加密</p>
+<p>为什么要进行两次 MD5 加密呢？**主要是为了安全起见！**下面就看一下两次加密的过程以及作用。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507093023894.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507093023894.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<ul>
+<li>
+<p><strong>第一次 MD5</strong></p>
+<p>Http 是明文传输的，用户输入的时候，明文密码就会在网络上进行传输，如果恶意用户把数据包截取到了，此时他就可以得到你的明文密码。所以，要先将用户输入的明文密码和固定 salt 做一次 MD5，再把 MD5 之后的密码在网络中传输，传递给服务端。这是第一次 MD5。<strong>所以第一次 MD5 的目的是为了防止用户输入的明文密码在网络中传输。</strong></p>
+</li>
+<li>
+<p><strong>第二次 MD5</strong></p>
+<p>服务端在接收到第一次 MD5 加密后传输过来的密码，并不是直接写入数据库里面，而是要生成一个随机 salt，这个 salt 和第一次 MD5 后的密码进行一个拼装，然后再做一次 MD5，得到第二次 MD5 加密后的密码。然后将随机 salt 和两次 MD5 后的密码同时写入数据库。因为这一次的 salt 是随机的，所以也要写入数据库。<strong>第二次 MD5 主要是为了防止数据库被盗时（假设的），通过反查表造成的密码泄露的问题。</strong></p>
+</li>
+</ul>
+<blockquote>
+<p>第二次 MD5 加密所用的随机 salt 为什么要保存在数据库里？当数据库被侵入，做MD5加密之后的密码和随机salt一起被盗的话，用户密码不就泄露了吗？</p>
+<p>如果不保存这个随机的salt，那么用户登录的时候就没法和数据库保存的密码进行校验了。</p>
+<p>实际上做 MD5 也不是绝对安全的，但是我们可以使得破解的难度呈指数型增长。MD5是不可逆的，不能反向解密的，网上所谓的“解密”都是把“加密”结果存储到数据库再比对的，只能暴力破解，即有一个字典，从字典中读取一条记录，将密码用加 salt 盐值做 MD5 加密来对比数据库里面的值是否相等。</p>
+</blockquote>
+</li>
+<li>
+<p>登录实现及 MD5 核心代码</p>
+<p>先加入 MD5 依赖：</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">    <span style="color:#6272a4">&lt;!-- 引入md5依赖 --&gt;</span>
+    <span style="color:#ff79c6">&lt;dependency&gt;</span>
+      <span style="color:#ff79c6">&lt;groupId&gt;</span>org.apache.commons<span style="color:#ff79c6">&lt;/groupId&gt;</span>
+      <span style="color:#ff79c6">&lt;artifactId&gt;</span>commons-lang3<span style="color:#ff79c6">&lt;/artifactId&gt;</span>
+      <span style="color:#ff79c6">&lt;version&gt;</span>3.9<span style="color:#ff79c6">&lt;/version&gt;</span>
+    <span style="color:#ff79c6">&lt;/dependency&gt;</span>
+    <span style="color:#ff79c6">&lt;dependency&gt;</span>
+      <span style="color:#ff79c6">&lt;groupId&gt;</span>commons-codec<span style="color:#ff79c6">&lt;/groupId&gt;</span>
+      <span style="color:#ff79c6">&lt;artifactId&gt;</span>commons-codec<span style="color:#ff79c6">&lt;/artifactId&gt;</span>
+      <span style="color:#ff79c6">&lt;version&gt;</span>1.10<span style="color:#ff79c6">&lt;/version&gt;</span>
+    <span style="color:#ff79c6">&lt;/dependency&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>封装 MD5 工具类：</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">MD5Util</span> <span style="color:#ff79c6">{</span>
+    <span style="color:#6272a4">// 利用依赖中的 md5 工具
+</span><span style="color:#6272a4"></span>    <span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">static</span> String <span style="color:#50fa7b">md5</span><span style="color:#ff79c6">(</span>String str<span style="color:#ff79c6">){</span>
+        <span style="color:#ff79c6">return</span> DigestUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">md5Hex</span><span style="color:#ff79c6">(</span>str<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+   
+    <span style="color:#6272a4">// 固定的salt，用在第一次 md5
+</span><span style="color:#6272a4"></span>    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">static</span> String salt <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;1a2b3c4d&#34;</span><span style="color:#ff79c6">;</span>
+   
+    <span style="color:#6272a4">// 第一次md5：MD5（明文密码+固定salt拼接）
+</span><span style="color:#6272a4"></span>    <span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">static</span> String <span style="color:#50fa7b">inputPassToFormPass</span><span style="color:#ff79c6">(</span>String inputPass<span style="color:#ff79c6">){</span>
+        <span style="color:#6272a4">// 直接拼接也不是很好，就取 salt 中的一些字符和 inputPass 进行拼接
+</span><span style="color:#6272a4"></span>        String str <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;&#34;</span> <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>0<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>2<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">+</span> inputPass <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>5<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>4<span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">return</span> md5<span style="color:#ff79c6">(</span>str<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+   
+    <span style="color:#6272a4">// 第二次md5：MD5（第一次md5 + 随机salt）
+</span><span style="color:#6272a4"></span>    <span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">static</span> String <span style="color:#50fa7b">formPassToDBPass</span><span style="color:#ff79c6">(</span>String formPass<span style="color:#ff79c6">,</span> String salt<span style="color:#ff79c6">){</span>
+        String str <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;&#34;</span> <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>0<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>2<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">+</span> formPass <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>5<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">+</span> salt<span style="color:#ff79c6">.</span><span style="color:#50fa7b">charAt</span><span style="color:#ff79c6">(</span>4<span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">return</span> md5<span style="color:#ff79c6">(</span>str<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+   
+    <span style="color:#6272a4">// 将两次 md5 结合到一起，返回最终写入数据库的密码
+</span><span style="color:#6272a4"></span>    <span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">static</span> String <span style="color:#50fa7b">inputPassToDBPass</span><span style="color:#ff79c6">(</span>String inputPass<span style="color:#ff79c6">,</span> String saltDB<span style="color:#ff79c6">){</span>
+        String formPass <span style="color:#ff79c6">=</span> inputPassToFormPass<span style="color:#ff79c6">(</span>inputPass<span style="color:#ff79c6">);</span>
+        String DBPass <span style="color:#ff79c6">=</span> formPassToDBPass<span style="color:#ff79c6">(</span>formPass<span style="color:#ff79c6">,</span> saltDB<span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">return</span> DBPass<span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下面的前端代码，我用的是 layuimini，但是处理逻辑是一样的。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507094301392.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507094301392.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>在进行了参数验证后，需要进行登录，controller 层：</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#6272a4">// 登录
+</span><span style="color:#6272a4"></span>    CodeMsg codeMsg <span style="color:#ff79c6">=</span> seckillUserService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">login</span><span style="color:#ff79c6">(</span>loginVo<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>codeMsg<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getCode</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">==</span> 0<span style="color:#ff79c6">){</span>
+        <span style="color:#ff79c6">return</span> Result<span style="color:#ff79c6">.</span><span style="color:#50fa7b">success</span><span style="color:#ff79c6">(</span><span style="color:#ff79c6">true</span><span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span><span style="color:#ff79c6">else</span><span style="color:#ff79c6">{</span>
+        <span style="color:#ff79c6">return</span> Result<span style="color:#ff79c6">.</span><span style="color:#50fa7b">error</span><span style="color:#ff79c6">(</span>codeMsg<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>service 层中，需要进行第二次 MD5 加密，然后和数据库中进行比对：</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">@Service
+<span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">SeckillUserService</span> <span style="color:#ff79c6">{</span>
+   
+    @Autowired
+    <span style="color:#8be9fd;font-style:italic">private</span> SeckillUserDao seckillUserDao<span style="color:#ff79c6">;</span>
+   
+    <span style="color:#8be9fd;font-style:italic">public</span> SeckillUser <span style="color:#50fa7b">selectById</span><span style="color:#ff79c6">(</span><span style="color:#8be9fd">long</span> id<span style="color:#ff79c6">){</span>
+        <span style="color:#ff79c6">return</span> seckillUserDao<span style="color:#ff79c6">.</span><span style="color:#50fa7b">selectById</span><span style="color:#ff79c6">(</span>id<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+   
+    <span style="color:#8be9fd;font-style:italic">public</span> CodeMsg <span style="color:#50fa7b">login</span><span style="color:#ff79c6">(</span>LoginVo loginVo<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>loginVo <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">){</span>
+            <span style="color:#ff79c6">return</span> CodeMsg<span style="color:#ff79c6">.</span><span style="color:#50fa7b">SERVER_ERROR</span><span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">}</span>
+        String username <span style="color:#ff79c6">=</span> loginVo<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getUsername</span><span style="color:#ff79c6">();</span>
+        String formPass <span style="color:#ff79c6">=</span> loginVo<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getPassword</span><span style="color:#ff79c6">();</span>
+        <span style="color:#6272a4">// 判断手机号是否存在
+</span><span style="color:#6272a4"></span>        SeckillUser user <span style="color:#ff79c6">=</span> selectById<span style="color:#ff79c6">(</span>Long<span style="color:#ff79c6">.</span><span style="color:#50fa7b">parseLong</span><span style="color:#ff79c6">(</span>username<span style="color:#ff79c6">));</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>user <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">){</span>
+            <span style="color:#ff79c6">return</span> CodeMsg<span style="color:#ff79c6">.</span><span style="color:#50fa7b">MOBILE_NOT_EXIST</span><span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">}</span>
+        String dbPass <span style="color:#ff79c6">=</span> user<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getPassword</span><span style="color:#ff79c6">();</span>
+        String dbSalt <span style="color:#ff79c6">=</span> user<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getSalt</span><span style="color:#ff79c6">();</span>
+        String calcPass <span style="color:#ff79c6">=</span> MD5Util<span style="color:#ff79c6">.</span><span style="color:#50fa7b">formPassToDBPass</span><span style="color:#ff79c6">(</span>formPass<span style="color:#ff79c6">,</span> dbSalt<span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(!</span>calcPass<span style="color:#ff79c6">.</span><span style="color:#50fa7b">equals</span><span style="color:#ff79c6">(</span>dbPass<span style="color:#ff79c6">)){</span>
+            <span style="color:#ff79c6">return</span> CodeMsg<span style="color:#ff79c6">.</span><span style="color:#50fa7b">PASSWORD_ERROR</span><span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">return</span> CodeMsg<span style="color:#ff79c6">.</span><span style="color:#50fa7b">SUCCESS</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h2 id="2秒杀接口地址隐藏">2.秒杀接口地址隐藏</h2>
+<p>每次点击秒杀按钮的时候，才生成秒杀地址，秒杀地址不是写死的，而是从服务端获取，是动态拼接而成的地址。这样比较安全，否则的话每次秒杀的地址都是一样的。这样可以防止恶意用户频繁调用接口来请求。</p>
+<p><strong>主要思路：</strong></p>
+<ul>
+<li>秒杀之前，先去请求秒杀接口的地址</li>
+<li>秒杀接口改造，带上 @PathVariable 参数</li>
+<li>添加生成地址的接口</li>
+<li>秒杀收到请求，先验证 Pathvariable</li>
+</ul>
+<p><strong>核心代码：</strong></p>
+<p>前端部分，秒杀按钮点击之后，应该先去请求生成路径的接口。生成路径接口成功返回，再拿到路径去做秒杀请求。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507095827582.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507095827582.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507095934290.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507095934290.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507100153409.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507100153409.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>此时后端要生成一个获取秒杀路径的接口，生成路径返回给前端，同时将路径存入 redis，前端再拼接路径做秒杀请求，和 redis 中进行验证。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507100336378.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507100336378.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507101115236.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507101115236.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>秒杀接口中，要判断 @PathVariable 带过来的 path 在不在 redis 缓存中，如果在，则可以进行下面步骤，否则秒杀地址错误，返回。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507101521560.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507101521560.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<h2 id="3数学公式验证码">3.数学公式验证码</h2>
+<p>秒杀接口地址隐藏，虽然可以防止恶意用户频繁调用接口来请求，但是没办法防止机器人，类似刷单软件一样可以频繁刷请求。</p>
+<p>所以，在秒杀按钮旁边添加验证码，可以防止机器人对系统进行疯狂秒杀，验证码越复杂，这个概率就越小，同时，输入验证码需要时间，能够让请求错开，减少同一时间点的并发量。</p>
+<p><strong>主要思路：</strong></p>
+<ul>
+<li>点击秒杀按钮之前，先输入验证码，分散用户请求</li>
+<li>添加生成验证码的接口，同时结果存入 redis</li>
+<li>获取秒杀路径的时候，验证验证码</li>
+</ul>
+<p>点击秒杀之前，需先输入验证码，来分散用户的请求。具体实现是后端生成类似 1*2-3 的验证码，把结果计算出来存至 redis，再把验证码图片发至客户端，此后客户端在请求秒杀地址前输入验证码值发请求验证，后端去缓存里面取值验证是否与用户输入的值相同，验证通过才会动态生成秒杀地址给前端。</p>
+<p><strong>核心代码：</strong></p>
+<p>前端页面，在按钮那边需要添加图片标签。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507103643931.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507103643931.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>然后前端倒计时方法中，不同秒杀时间段的展示：</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507103353722.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507103353722.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>后端生成图片验证码接口：</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507103501809.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507103501809.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>service 层中是固定的代码：</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">	<span style="color:#8be9fd;font-style:italic">public</span> BufferedImage <span style="color:#50fa7b">createVerifyCode</span><span style="color:#ff79c6">(</span>SeckillUser user<span style="color:#ff79c6">,</span> <span style="color:#8be9fd">long</span> goodsId<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+		<span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>user <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">null</span> <span style="color:#ff79c6">||</span> goodsId <span style="color:#ff79c6">&lt;=</span> 0<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+			<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">;</span>
+		<span style="color:#ff79c6">}</span>
+
+		<span style="color:#8be9fd">int</span> width <span style="color:#ff79c6">=</span> 80<span style="color:#ff79c6">;</span>
+		<span style="color:#8be9fd">int</span> height <span style="color:#ff79c6">=</span> 32<span style="color:#ff79c6">;</span>
+		<span style="color:#6272a4">//create the image
+</span><span style="color:#6272a4"></span>		BufferedImage image <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> BufferedImage<span style="color:#ff79c6">(</span>width<span style="color:#ff79c6">,</span> height<span style="color:#ff79c6">,</span> BufferedImage<span style="color:#ff79c6">.</span><span style="color:#50fa7b">TYPE_INT_RGB</span><span style="color:#ff79c6">);</span>
+		Graphics g <span style="color:#ff79c6">=</span> image<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getGraphics</span><span style="color:#ff79c6">();</span>
+		<span style="color:#6272a4">// set the background color
+</span><span style="color:#6272a4"></span>		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setColor</span><span style="color:#ff79c6">(</span><span style="color:#ff79c6">new</span> Color<span style="color:#ff79c6">(</span>0xDCDCDC<span style="color:#ff79c6">));</span>
+		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">fillRect</span><span style="color:#ff79c6">(</span>0<span style="color:#ff79c6">,</span> 0<span style="color:#ff79c6">,</span> width<span style="color:#ff79c6">,</span> height<span style="color:#ff79c6">);</span>
+		<span style="color:#6272a4">// draw the border
+</span><span style="color:#6272a4"></span>		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setColor</span><span style="color:#ff79c6">(</span>Color<span style="color:#ff79c6">.</span><span style="color:#50fa7b">black</span><span style="color:#ff79c6">);</span>
+		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">drawRect</span><span style="color:#ff79c6">(</span>0<span style="color:#ff79c6">,</span> 0<span style="color:#ff79c6">,</span> width <span style="color:#ff79c6">-</span> 1<span style="color:#ff79c6">,</span> height <span style="color:#ff79c6">-</span> 1<span style="color:#ff79c6">);</span>
+		<span style="color:#6272a4">// create a random instance to generate the codes
+</span><span style="color:#6272a4"></span>		Random rdm <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Random<span style="color:#ff79c6">();</span>
+		<span style="color:#6272a4">// make some confusion
+</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">for</span> <span style="color:#ff79c6">(</span><span style="color:#8be9fd">int</span> i <span style="color:#ff79c6">=</span> 0<span style="color:#ff79c6">;</span> i <span style="color:#ff79c6">&lt;</span> 50<span style="color:#ff79c6">;</span> i<span style="color:#ff79c6">++)</span> <span style="color:#ff79c6">{</span>
+			<span style="color:#8be9fd">int</span> x <span style="color:#ff79c6">=</span> rdm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">nextInt</span><span style="color:#ff79c6">(</span>width<span style="color:#ff79c6">);</span>
+			<span style="color:#8be9fd">int</span> y <span style="color:#ff79c6">=</span> rdm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">nextInt</span><span style="color:#ff79c6">(</span>height<span style="color:#ff79c6">);</span>
+			g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">drawOval</span><span style="color:#ff79c6">(</span>x<span style="color:#ff79c6">,</span> y<span style="color:#ff79c6">,</span> 0<span style="color:#ff79c6">,</span> 0<span style="color:#ff79c6">);</span>
+		<span style="color:#ff79c6">}</span>
+		<span style="color:#6272a4">// generate a random code
+</span><span style="color:#6272a4"></span>		String verifyCode <span style="color:#ff79c6">=</span> generateVerifyCode<span style="color:#ff79c6">(</span>rdm<span style="color:#ff79c6">);</span>
+		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setColor</span><span style="color:#ff79c6">(</span><span style="color:#ff79c6">new</span> Color<span style="color:#ff79c6">(</span>0<span style="color:#ff79c6">,</span> 100<span style="color:#ff79c6">,</span> 0<span style="color:#ff79c6">));</span>
+		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setFont</span><span style="color:#ff79c6">(</span><span style="color:#ff79c6">new</span> Font<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;Candara&#34;</span><span style="color:#ff79c6">,</span> Font<span style="color:#ff79c6">.</span><span style="color:#50fa7b">BOLD</span><span style="color:#ff79c6">,</span> 24<span style="color:#ff79c6">));</span>
+		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">drawString</span><span style="color:#ff79c6">(</span>verifyCode<span style="color:#ff79c6">,</span> 8<span style="color:#ff79c6">,</span> 24<span style="color:#ff79c6">);</span>
+		g<span style="color:#ff79c6">.</span><span style="color:#50fa7b">dispose</span><span style="color:#ff79c6">();</span>
+		<span style="color:#6272a4">//把验证码结果存到redis中
+</span><span style="color:#6272a4"></span>		<span style="color:#8be9fd">int</span> rnd <span style="color:#ff79c6">=</span> calc<span style="color:#ff79c6">(</span>verifyCode<span style="color:#ff79c6">);</span>
+		redisService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">set</span><span style="color:#ff79c6">(</span>SeckillKey<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getVerifyCode</span><span style="color:#ff79c6">,</span> user<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getId</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">+</span> <span style="color:#f1fa8c">&#34;,&#34;</span> <span style="color:#ff79c6">+</span> goodsId<span style="color:#ff79c6">,</span> rnd<span style="color:#ff79c6">);</span>
+		<span style="color:#6272a4">//输出图片
+</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> image<span style="color:#ff79c6">;</span>
+	<span style="color:#ff79c6">}</span>
+
+	<span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">char</span><span style="color:#ff79c6">[]</span> ops <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> <span style="color:#8be9fd">char</span><span style="color:#ff79c6">[]</span> <span style="color:#ff79c6">{</span><span style="color:#f1fa8c">&#39;+&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#f1fa8c">&#39;-&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#f1fa8c">&#39;*&#39;</span><span style="color:#ff79c6">};</span>
+	<span style="color:#6272a4">/**
+</span><span style="color:#6272a4">	 * + - *
+</span><span style="color:#6272a4">	 */</span>
+	<span style="color:#8be9fd;font-style:italic">private</span> String <span style="color:#50fa7b">generateVerifyCode</span><span style="color:#ff79c6">(</span>Random rdm<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+		<span style="color:#8be9fd">int</span> num1 <span style="color:#ff79c6">=</span> rdm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">nextInt</span><span style="color:#ff79c6">(</span>10<span style="color:#ff79c6">);</span>
+		<span style="color:#8be9fd">int</span> num2 <span style="color:#ff79c6">=</span> rdm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">nextInt</span><span style="color:#ff79c6">(</span>10<span style="color:#ff79c6">);</span>
+		<span style="color:#8be9fd">int</span> num3 <span style="color:#ff79c6">=</span> rdm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">nextInt</span><span style="color:#ff79c6">(</span>10<span style="color:#ff79c6">);</span>
+		<span style="color:#8be9fd">char</span> op1 <span style="color:#ff79c6">=</span> ops<span style="color:#ff79c6">[</span>rdm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">nextInt</span><span style="color:#ff79c6">(</span>3<span style="color:#ff79c6">)];</span>
+		<span style="color:#8be9fd">char</span> op2 <span style="color:#ff79c6">=</span> ops<span style="color:#ff79c6">[</span>rdm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">nextInt</span><span style="color:#ff79c6">(</span>3<span style="color:#ff79c6">)];</span>
+		String exp <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;&#34;</span><span style="color:#ff79c6">+</span> num1 <span style="color:#ff79c6">+</span> op1 <span style="color:#ff79c6">+</span> num2 <span style="color:#ff79c6">+</span> op2 <span style="color:#ff79c6">+</span> num3<span style="color:#ff79c6">;</span>
+		<span style="color:#ff79c6">return</span> exp<span style="color:#ff79c6">;</span>
+	<span style="color:#ff79c6">}</span>
+
+	<span style="color:#6272a4">// 计算表达式的结果
+</span><span style="color:#6272a4"></span>	<span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">int</span> <span style="color:#50fa7b">calc</span><span style="color:#ff79c6">(</span>String exp<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+		<span style="color:#ff79c6">try</span> <span style="color:#ff79c6">{</span>
+			ScriptEngineManager manager <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ScriptEngineManager<span style="color:#ff79c6">();</span>
+			ScriptEngine engine <span style="color:#ff79c6">=</span> manager<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getEngineByName</span><span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;JavaScript&#34;</span><span style="color:#ff79c6">);</span>
+			<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">(</span>Integer<span style="color:#ff79c6">)</span>engine<span style="color:#ff79c6">.</span><span style="color:#50fa7b">eval</span><span style="color:#ff79c6">(</span>exp<span style="color:#ff79c6">);</span>
+		<span style="color:#ff79c6">}</span><span style="color:#ff79c6">catch</span><span style="color:#ff79c6">(</span>Exception e<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+			e<span style="color:#ff79c6">.</span><span style="color:#50fa7b">printStackTrace</span><span style="color:#ff79c6">();</span>
+			<span style="color:#ff79c6">return</span> 0<span style="color:#ff79c6">;</span>
+		<span style="color:#ff79c6">}</span>
+	<span style="color:#ff79c6">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下面需要做验证码的校验了，生成秒杀地址之前就需要验证：</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507103740420.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507103740420.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>从 redis 中取 验证码的结果，验证结束要把结果删除：</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/2021050710381782.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/2021050710381782.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>注意前端请求秒杀路径的时候，要把验证码结果带过来：</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/2021050710392834.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/2021050710392834.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<h2 id="4接口限流防刷">4.接口限流防刷</h2>
+<p>接口限流防刷的目的就是，限制同一个用户在一段时间内的访问次数。</p>
+<p><strong>主要思路：</strong></p>
+<ul>
+<li>对接口做限流</li>
+<li>利用缓存，当用户点击的时候，缓存中生成计数器，第一次访问设置计数器为 1，并设置有效期比如 5 分钟，5 分钟内后续每访问一次，这个值加 1，如果超过次数，返回访问过于频繁。等下一个 5 分钟，又会重新开始计数，因为上一个缓存已经失效了。</li>
+<li>从缓存里取 key 判断，如果缓存里没有，就设置一个计数器初始值为 1，如果有，值就加 1，如果值大于 5，代表访问受限。</li>
+<li>自定义注解 + 拦截器减少对业务的入侵</li>
+</ul>
+<p><strong>核心代码：</strong></p>
+<p>先定义访问限制的注解，包含了时间段、最大范围跟次数、以及是否需要登录：</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#6272a4">/**
+</span><span style="color:#6272a4"> * 防刷限流。运行时、用在方法上
+</span><span style="color:#6272a4"> * seconds：多少秒内
+</span><span style="color:#6272a4"> * maxCount：限制访问的次数
+</span><span style="color:#6272a4"> * needLogin：是否需要登录，默认 true
+</span><span style="color:#6272a4"> */</span>
+@Retention<span style="color:#ff79c6">(</span>RetentionPolicy<span style="color:#ff79c6">.</span><span style="color:#50fa7b">RUNTIME</span><span style="color:#ff79c6">)</span>
+@Target<span style="color:#ff79c6">(</span>ElementType<span style="color:#ff79c6">.</span><span style="color:#50fa7b">METHOD</span><span style="color:#ff79c6">)</span>
+<span style="color:#8be9fd;font-style:italic">public</span> @interface AccessLimit <span style="color:#ff79c6">{</span>
+    <span style="color:#8be9fd">int</span> <span style="color:#50fa7b">seconds</span><span style="color:#ff79c6">();</span>
+    <span style="color:#8be9fd">int</span> <span style="color:#50fa7b">maxCount</span><span style="color:#ff79c6">();</span>
+    <span style="color:#8be9fd">boolean</span> <span style="color:#50fa7b">needLogin</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">default</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">;</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后对我们想要进行限流防刷的接口进行标记，比如获取秒杀路径接口，5秒内只能访问5次：</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507112552979.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507112552979.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>创建拦截器：</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 66
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 67
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 69
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 70
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 71
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 72
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 73
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 74
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 75
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 76
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 77
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 78
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 79
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 80
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 81
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 82
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 83
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 84
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 85
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 86
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 87
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 88
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 89
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 90
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 91
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 92
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 93
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 94
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 95
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 96
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 97
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 98
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 99
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">100
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#6272a4">/**
+</span><span style="color:#6272a4"> * 访问拦截器
+</span><span style="color:#6272a4"> */</span>
+@Service
+<span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">AccessInterceptor</span> <span style="color:#8be9fd;font-style:italic">implements</span> HandlerInterceptor <span style="color:#ff79c6">{</span>
+    @Autowired
+    <span style="color:#8be9fd;font-style:italic">private</span> SeckillUserService seckillUserService<span style="color:#ff79c6">;</span>
+    @Autowired
+    <span style="color:#8be9fd;font-style:italic">private</span> RedisService redisService<span style="color:#ff79c6">;</span>
+
+    @Override
+    <span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd">boolean</span> <span style="color:#50fa7b">preHandle</span><span style="color:#ff79c6">(</span>HttpServletRequest request<span style="color:#ff79c6">,</span> HttpServletResponse response<span style="color:#ff79c6">,</span> Object handler<span style="color:#ff79c6">)</span> <span style="color:#8be9fd;font-style:italic">throws</span> Exception <span style="color:#ff79c6">{</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>handler <span style="color:#ff79c6">instanceof</span> HandlerMethod<span style="color:#ff79c6">){</span>
+            <span style="color:#6272a4">// 取用户,存到 UserContext 的 ThreadLocal 中
+</span><span style="color:#6272a4"></span>            SeckillUser user <span style="color:#ff79c6">=</span> getUser<span style="color:#ff79c6">(</span>request<span style="color:#ff79c6">,</span>response<span style="color:#ff79c6">);</span>
+            UserContext<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setUser</span><span style="color:#ff79c6">(</span>user<span style="color:#ff79c6">);</span>
+
+            <span style="color:#6272a4">// 获取方法上的注解
+</span><span style="color:#6272a4"></span>            HandlerMethod hm <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">(</span>HandlerMethod<span style="color:#ff79c6">)</span> handler<span style="color:#ff79c6">;</span>
+            AccessLimit accessLimit <span style="color:#ff79c6">=</span> hm<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getMethodAnnotation</span><span style="color:#ff79c6">(</span>AccessLimit<span style="color:#ff79c6">.</span><span style="color:#50fa7b">class</span><span style="color:#ff79c6">);</span>
+            <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>accessLimit <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">){</span>
+                <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">;</span>
+            <span style="color:#ff79c6">}</span>
+            <span style="color:#6272a4">// 获取注解参数
+</span><span style="color:#6272a4"></span>            <span style="color:#8be9fd">int</span> seconds <span style="color:#ff79c6">=</span> accessLimit<span style="color:#ff79c6">.</span><span style="color:#50fa7b">seconds</span><span style="color:#ff79c6">();</span>
+            <span style="color:#8be9fd">int</span> maxCount <span style="color:#ff79c6">=</span> accessLimit<span style="color:#ff79c6">.</span><span style="color:#50fa7b">maxCount</span><span style="color:#ff79c6">();</span>
+            <span style="color:#8be9fd">boolean</span> needLogin <span style="color:#ff79c6">=</span> accessLimit<span style="color:#ff79c6">.</span><span style="color:#50fa7b">needLogin</span><span style="color:#ff79c6">();</span>
+            String key <span style="color:#ff79c6">=</span> request<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getRequestURI</span><span style="color:#ff79c6">();</span>
+            <span style="color:#ff79c6">if</span> <span style="color:#ff79c6">(</span>needLogin<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+                <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>user <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">){</span>
+                    render<span style="color:#ff79c6">(</span>response<span style="color:#ff79c6">,</span> CodeMsg<span style="color:#ff79c6">.</span><span style="color:#50fa7b">SESSION_ERROR</span><span style="color:#ff79c6">);</span>
+                    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">false</span><span style="color:#ff79c6">;</span>
+                <span style="color:#ff79c6">}</span>
+                key <span style="color:#ff79c6">+=</span> <span style="color:#f1fa8c">&#34;_&#34;</span> <span style="color:#ff79c6">+</span> user<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getId</span><span style="color:#ff79c6">();</span>
+            <span style="color:#ff79c6">}</span>
+            AccessKey accessKey <span style="color:#ff79c6">=</span> AccessKey<span style="color:#ff79c6">.</span><span style="color:#50fa7b">withExpireSecond</span><span style="color:#ff79c6">(</span>seconds<span style="color:#ff79c6">);</span>
+            Integer count <span style="color:#ff79c6">=</span> redisService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">get</span><span style="color:#ff79c6">(</span>accessKey<span style="color:#ff79c6">,</span> key<span style="color:#ff79c6">,</span> Integer<span style="color:#ff79c6">.</span><span style="color:#50fa7b">class</span><span style="color:#ff79c6">);</span>
+            <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>count <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">){</span>				<span style="color:#6272a4">// 第一次访问时候，设置
+</span><span style="color:#6272a4"></span>                redisService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">set</span><span style="color:#ff79c6">(</span>accessKey<span style="color:#ff79c6">,</span> key<span style="color:#ff79c6">,</span>1<span style="color:#ff79c6">);</span>
+            <span style="color:#ff79c6">}</span><span style="color:#ff79c6">else</span> <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>count <span style="color:#ff79c6">&lt;</span> maxCount<span style="color:#ff79c6">){</span>		<span style="color:#6272a4">// 自增 1
+</span><span style="color:#6272a4"></span>                redisService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">incr</span><span style="color:#ff79c6">(</span>accessKey<span style="color:#ff79c6">,</span> key<span style="color:#ff79c6">);</span>
+            <span style="color:#ff79c6">}</span><span style="color:#ff79c6">else</span><span style="color:#ff79c6">{</span>						<span style="color:#6272a4">// 超过次数，访问受限
+</span><span style="color:#6272a4"></span>                render<span style="color:#ff79c6">(</span>response<span style="color:#ff79c6">,</span> CodeMsg<span style="color:#ff79c6">.</span><span style="color:#50fa7b">ACCESS_LIMIT</span><span style="color:#ff79c6">);</span>
+                <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">false</span><span style="color:#ff79c6">;</span>
+            <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
+
+    <span style="color:#6272a4">/**
+</span><span style="color:#6272a4">     * 返回给前端具体的错误信息
+</span><span style="color:#6272a4">     * @param response
+</span><span style="color:#6272a4">     * @param cm
+</span><span style="color:#6272a4">     * @throws Exception
+</span><span style="color:#6272a4">     */</span>
+    <span style="color:#8be9fd;font-style:italic">private</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">render</span><span style="color:#ff79c6">(</span>HttpServletResponse response<span style="color:#ff79c6">,</span> CodeMsg cm<span style="color:#ff79c6">)</span><span style="color:#8be9fd;font-style:italic">throws</span> Exception <span style="color:#ff79c6">{</span>
+        response<span style="color:#ff79c6">.</span><span style="color:#50fa7b">setContentType</span><span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;application/json;charset=UTF-8&#34;</span><span style="color:#ff79c6">);</span>
+        OutputStream out <span style="color:#ff79c6">=</span> response<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getOutputStream</span><span style="color:#ff79c6">();</span>
+        String str  <span style="color:#ff79c6">=</span> JSON<span style="color:#ff79c6">.</span><span style="color:#50fa7b">toJSONString</span><span style="color:#ff79c6">(</span>Result<span style="color:#ff79c6">.</span><span style="color:#50fa7b">error</span><span style="color:#ff79c6">(</span>cm<span style="color:#ff79c6">));</span>
+        out<span style="color:#ff79c6">.</span><span style="color:#50fa7b">write</span><span style="color:#ff79c6">(</span>str<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getBytes</span><span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;UTF-8&#34;</span><span style="color:#ff79c6">));</span>
+        out<span style="color:#ff79c6">.</span><span style="color:#50fa7b">flush</span><span style="color:#ff79c6">();</span>
+        out<span style="color:#ff79c6">.</span><span style="color:#50fa7b">close</span><span style="color:#ff79c6">();</span>
+    <span style="color:#ff79c6">}</span>
+
+    <span style="color:#6272a4">/**
+</span><span style="color:#6272a4">     *  获取秒杀 user
+</span><span style="color:#6272a4">     * @param request
+</span><span style="color:#6272a4">     * @param response
+</span><span style="color:#6272a4">     * @return
+</span><span style="color:#6272a4">     */</span>
+    <span style="color:#8be9fd;font-style:italic">private</span> SeckillUser <span style="color:#50fa7b">getUser</span><span style="color:#ff79c6">(</span>HttpServletRequest request<span style="color:#ff79c6">,</span> HttpServletResponse response<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        String paramToken <span style="color:#ff79c6">=</span> request<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getParameter</span><span style="color:#ff79c6">(</span>seckillUserService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">COOKIE_NAME_TOKEN</span><span style="color:#ff79c6">);</span>
+        String cookieToken <span style="color:#ff79c6">=</span> getCookieValue<span style="color:#ff79c6">(</span>request<span style="color:#ff79c6">,</span> seckillUserService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">COOKIE_NAME_TOKEN</span><span style="color:#ff79c6">);</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>StringUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isEmpty</span><span style="color:#ff79c6">(</span>cookieToken<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">&amp;&amp;</span> StringUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isEmpty</span><span style="color:#ff79c6">(</span>paramToken<span style="color:#ff79c6">))</span> <span style="color:#ff79c6">{</span>
+            <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">}</span>
+        String token <span style="color:#ff79c6">=</span> StringUtils<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isEmpty</span><span style="color:#ff79c6">(</span>paramToken<span style="color:#ff79c6">)?</span>cookieToken<span style="color:#ff79c6">:</span>paramToken<span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">return</span> seckillUserService<span style="color:#ff79c6">.</span><span style="color:#50fa7b">selectByToken</span><span style="color:#ff79c6">(</span>token<span style="color:#ff79c6">,</span> response<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+
+    <span style="color:#6272a4">/**
+</span><span style="color:#6272a4">     *  获取 cookie 值
+</span><span style="color:#6272a4">     * @param request
+</span><span style="color:#6272a4">     * @param cookieName
+</span><span style="color:#6272a4">     * @return
+</span><span style="color:#6272a4">     */</span>
+    <span style="color:#8be9fd;font-style:italic">private</span> String <span style="color:#50fa7b">getCookieValue</span><span style="color:#ff79c6">(</span>HttpServletRequest request<span style="color:#ff79c6">,</span> String cookieName<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        Cookie<span style="color:#ff79c6">[]</span>  cookies <span style="color:#ff79c6">=</span> request<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getCookies</span><span style="color:#ff79c6">();</span>
+        <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>cookies <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">null</span> <span style="color:#ff79c6">||</span> cookies<span style="color:#ff79c6">.</span><span style="color:#50fa7b">length</span> <span style="color:#ff79c6">&lt;=</span> 0<span style="color:#ff79c6">){</span>
+            <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">;</span>
+        <span style="color:#ff79c6">}</span>
+
+        <span style="color:#ff79c6">for</span><span style="color:#ff79c6">(</span>Cookie cookie <span style="color:#ff79c6">:</span> cookies<span style="color:#ff79c6">){</span>
+            <span style="color:#ff79c6">if</span><span style="color:#ff79c6">(</span>cookie<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getName</span><span style="color:#ff79c6">().</span><span style="color:#50fa7b">equals</span><span style="color:#ff79c6">(</span>cookieName<span style="color:#ff79c6">)){</span>
+                <span style="color:#ff79c6">return</span> cookie<span style="color:#ff79c6">.</span><span style="color:#50fa7b">getValue</span><span style="color:#ff79c6">();</span>
+            <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">}</span>
+        <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">null</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其中，UserContext 中有一个 ThreadLocal，用于存放当前线程的 user。</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507111804991.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507111804991.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507111845503.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507111845503.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>记得要在 WebConfig 中注册一下拦截器：</p>
+<p>
+        <a data-fancybox="gallery" href="https://img-blog.csdnimg.cn/20210507112109738.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70">
+            <img class="mx-auto" alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210507112109738.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDI5MjA1MA==,size_16,color_FFFFFF,t_70" />
+        </a>
+    </p>
+<p>这样我们就可以在接口上添加注解 @AccessLimit 来自定义时长和次数，对不同接口进行不同策略的限流防刷了。</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%A7%92%E6%9D%80%E6%8E%A5%E5%8F%A3%E4%BC%98%E5%8C%96/">秒杀系统——秒杀接口优化</a></li>
+        
+        <li><a href="/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E9%A1%B5%E9%9D%A2%E4%BC%98%E5%8C%96/">秒杀系统——页面优化</a></li>
+        
+        <li><a href="/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%88%86%E5%B8%83%E5%BC%8FSession/">秒杀系统——分布式Session</a></li>
+        
+        <li><a href="/post/hugo&#43;GitHub%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">Hugo&#43;GitHub搭建个人博客</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            没有标签
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "ckj" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://endlesshair.github.io/">ckj&#39;s blog By ckj</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'GA ID', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://endlesshair.github.io/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://endlesshair.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" title="秒杀系统——安全性能优化">秒杀系统——安全性能优化</a>
+    </li>
+    
+    <li>
+        <a href="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%A7%92%E6%9D%80%E6%8E%A5%E5%8F%A3%E4%BC%98%E5%8C%96/" title="秒杀系统——秒杀接口优化">秒杀系统——秒杀接口优化</a>
+    </li>
+    
+    <li>
+        <a href="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E9%A1%B5%E9%9D%A2%E4%BC%98%E5%8C%96/" title="秒杀系统——页面优化">秒杀系统——页面优化</a>
+    </li>
+    
+    <li>
+        <a href="https://endlesshair.github.io/post/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E5%88%86%E5%B8%83%E5%BC%8FSession/" title="秒杀系统——分布式Session">秒杀系统——分布式Session</a>
+    </li>
+    
+    <li>
+        <a href="https://endlesshair.github.io/post/hugo&#43;GitHub%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/" title="Hugo&#43;GitHub搭建个人博客">Hugo&#43;GitHub搭建个人博客</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://blog.csdn.net/weixin_44292050?spm=1011.2124.3001.5343" title="我的 CSDN">我的 CSDN</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://endlesshair.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
